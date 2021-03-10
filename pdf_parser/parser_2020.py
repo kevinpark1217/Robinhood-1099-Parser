@@ -13,9 +13,9 @@ class Parser2020(ParserInterface):
         num_pages = len(self.pages)
 
         last_raw_entries = []
-        # for p in range(1, num_pages+1):
+        for p in range(1, num_pages+1):
         # Test pages: 7,8,23-26
-        for p in range(23, 26+1):
+        # for p in range(7, 8+1):
             if self.contains(keystr, p):
                 print("Page: {}".format(str(p)))
 
@@ -28,11 +28,8 @@ class Parser2020(ParserInterface):
                     if prev_idx >= 0:
                         raw_entries = last_raw_entries + strings[prev_idx:prev_idx+idx+1]
                         last_raw_entries = []
-                        print(raw_entries)
                         Transx.parse(raw_entries)
-                    else: # first hit
-                        print(strings[prev_idx+idx+1])
-                        if "(cont'd)" not in strings[prev_idx+idx+1]:
+                    elif "(cont'd)" not in strings[prev_idx+idx+1] and last_raw_entries:
                             Transx.parse(last_raw_entries)
                             last_raw_entries = []
 
@@ -43,4 +40,4 @@ class Parser2020(ParserInterface):
                 last_raw_entries += strings[prev_idx:]
                 # print(raw_entries)
 
-        Transx.parse(raw_entries)
+        Transx.parse(last_raw_entries)

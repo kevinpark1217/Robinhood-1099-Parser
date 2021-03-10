@@ -13,6 +13,7 @@ class Transx:
     # wash_sales_loss
     # gain_loss
 
+
     def __init__(self, data):
         assert(isinstance(data, list))
         assert(len(data) == 6)
@@ -28,99 +29,97 @@ class Transx:
         quantity_pattern = re.compile(f"^{comma_number_pat}\.\d+$")
         money_pattern = re.compile(f"^\-?{comma_number_pat}\.\d\d$")
 
-    
+
         desc = raw_data[0]
 
-        shift = 0
-        while shift < len(raw_data) - 8:
-            if multi := re.match(f"^(?P<cnt>{comma_number_pat}) transactions for (?P<sold_date>{date_pat}).", raw_data[shift+1]):
+        shift = 1
+        while shift < len(raw_data) - 7:
+            if multi := re.match(f"^(?P<cnt>{comma_number_pat}) transactions for (?P<sold_date>{date_pat}).", raw_data[shift]):
                 # Multiple entries
                 cnt = locale.atoi(multi.group("cnt"))
                 sold_date = multi.group("sold_date")
 
                 print(f"{cnt} transactions sold on {sold_date}")
-
-                for i in range(cnt):
-                    while not (quantity_pattern.match(raw_data[shift+2]) and \
-                        money_pattern.match(raw_data[shift+3]) and \
-                        date_pattern.match(raw_data[shift+4]) and \
-                        money_pattern.match(raw_data[shift+5])): # quantity, proceeds, acquired_date, cost,
-                        # money_pattern.match(raw_data[shift+7])): # , ..., gain_loss
-                        
-                        shift += 1
-
-                    # Wash sales check
-                    if raw_data[shift+6] == "...":
-                        filtered = raw_data[shift+2:shift+1+7]
-                        # Check "i of n"
-                        raw_nth = raw_data[shift+1+7]
-
-                        shift += 8
-
-                    elif money_pattern.match(raw_data[shift+6]) and \
-                        raw_data[shift+7] == "W":
-                        # valid wash sales
-
-                        # Clean wash_sales_loss data
-                        filtered = raw_data[shift+2:shift+1+8]
-                        filtered[4] += " " + filtered[5]
-                        del filtered[5]
-                        # Check "i of n"
-                        raw_nth = raw_data[shift+1+8]
-                        
-                        shift += 9
-
-                    else:
-                        raise Exception(
-                            f"Unknown multi entry format.\n"
-                            f"  Exception while parsing...\n"
-                            f"  {raw_data[shift+2:shift+1+8]}")
-                    
-                    # Count check
-                    assert(nth_data := re.match(f"^(?P<nth>{comma_number_pat}) of (?P<total>{comma_number_pat})$", raw_nth))
-                    assert(locale.atoi(nth_data.group("nth")) == i + 1)
-                    assert(locale.atoi(nth_data.group("total")) == cnt)
-                    
-                    # Add sold_date to the front
-                    filtered.insert(0, sold_date)
-                    print(filtered)
-
-                    # Clean
-                    del raw_nth, filtered
-
-                # shift += 1
-
-            elif date_pattern.match(raw_data[shift+1]) and \
-                quantity_pattern.match(raw_data[shift+2]) and \
-                money_pattern.match(raw_data[shift+3]) and \
-                date_pattern.match(raw_data[shift+4]) and \
-                money_pattern.match(raw_data[shift+5]):
-                # Single entry
-                
-                # Wash sales check
-                if raw_data[shift+6] == "...":
-                    filtered = raw_data[shift+1:shift+1+7]
-                    print(filtered)
-                    shift += 7
-
-                elif money_pattern.match(raw_data[shift+6]) and \
-                    raw_data[shift+7] == "W":
-                    # valid wash sales
-
-                    # Clean wash_sales_loss data
-                    filtered = raw_data[shift+1:shift+1+8]
-                    filtered[5] += " " + filtered[6]
-                    del filtered[6]
-                    print(filtered)
-                    shift += 8
-
-                else:
-                    raise Exception(
-                        f"Unknown single entry format.\n"
-                        f"  Exception while parsing...\n"
-                        f"  {raw_data[shift+1:shift+1+8]}")
+            elif date_pattern.match(raw_data[shift]):
+                cnt = 1
+                sold_date = raw_data[shift]
             else:
                 shift += 1
+                continue
+
+
+            n = 0
+            while n < cnt:
+                shift += 1
+                filtered = []
+                shift_extra = 0
+
+                # quantity
+                if not quantity_pattern.match(raw_data[shift+shift_extra]):
+                    if cnt > 1: continue
+                    else: break
+                filtered.append(raw_data[shift+shift_extra])
+
+                # proceeds
+                if not money_pattern.match(raw_data[shift+shift_extra+1]):
+                    if cnt > 1: continue
+                    else: break
+                filtered.append(raw_data[shift+shift_extra+1])
+                # Gross Net - Potential Extra character
+                gross_net = raw_data[shift+shift_extra+2]
+                if gross_net == 'N' or gross_net == 'G':
+                    filtered[1] += " " + gross_net
+                    shift_extra += 1
+
+                # date_acquired
+                if not date_pattern.match(raw_data[shift+shift_extra+2]):
+                    if cnt > 1: continue
+                    else: break
+                filtered.append(raw_data[shift+shift_extra+2])
+
+                # cost
+                if not money_pattern.match(raw_data[shift+shift_extra+3]): 
+                    if cnt > 1: continue
+                    else: break
+                filtered.append(raw_data[shift+shift_extra+3])
+
+                # wash_sales_loss
+                if raw_data[shift+shift_extra+4] == "...":
+                    filtered.append("")
+
+                elif money_pattern.match(raw_data[shift+shift_extra+4]):
+                    filtered.append(raw_data[shift+shift_extra+4])
+                    # disallowed - Potential Extra character
+                    if raw_data[shift+shift_extra+5] == "W":
+                        filtered[4] += " " + raw_data[shift+shift_extra+5]
+                        shift_extra += 1
+
+                else:
+                    if cnt > 1: continue
+                    else: break
+                
+                # gain_loss
+                if not money_pattern.match(raw_data[shift+shift_extra+5]):
+                    if cnt > 1: continue
+                    else: break
+                filtered.append(raw_data[shift+shift_extra+5])
+                
+                if cnt > 1:
+                    # Count check
+                    raw_nth = raw_data[shift+shift_extra+6]
+                    assert(nth_data := re.match(f"^(?P<nth>{comma_number_pat}) of (?P<total>{comma_number_pat})$", raw_nth))
+                    assert(locale.atoi(nth_data.group("nth")) == n + 1)
+                    assert(locale.atoi(nth_data.group("total")) == cnt)
+                
+                # Add sold_date to the front
+                filtered.insert(0, sold_date)
+                print(filtered)
+
+                shift += shift_extra + 6
+                n += 1
+                # Clean
+                del filtered
+
         return
 
         # Missing edge cases
