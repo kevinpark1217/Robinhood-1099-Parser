@@ -1,9 +1,10 @@
 import argparse
 import os
 import os.path
-import csv
 
-from pdf_parser.transx import Transx
+from rh_1099 import PDFContents
+from rh_1099.pdf_parser import Parser2020
+# from rh_1099.sales_transactions import Sales2020
 
 
 def is_valid_file(parser, arg):
@@ -27,36 +28,21 @@ if not args.csv:
     args.csv = 'output.csv'
 
 
-from pdf_parser import Parser2020
 parser = Parser2020(args.pdf_path)
-transx = parser.process(not args.silent)
+contents = parser.process(not args.silent)
 
 
 # Print values to crosscheck with PDF
 if args.check:
-    proceeds = cost = wash_sales_loss = gain_loss = 0
-    for trnx in transx:
-        proceeds += round(trnx.get_proceeds() * 100)
-        cost += round(trnx.get_cost() * 100)
-        wash_sales_loss += round(trnx.get_wash_sales_loss() * 100)
-        gain_loss += round(trnx.get_gain_loss() * 100)
-
-    proceeds /= 100
-    cost /= 100
-    wash_sales_loss /= 100
-    gain_loss /= 100
+    proceeds = contents.total("proceeds")
+    cost = contents.total("cost")
+    wash_sales_loss = contents.total("wash_sales_loss")
+    gain_loss = contents.total("gain_loss")
 
     print("Calculated Totals:")
     print("=== Make sure the values matches with the PDF totals! ===")
-    print(f"proceeds: {proceeds}, cost: {cost}, wash_sales_loss: {wash_sales_loss}, gain_loss: {gain_loss}")
+    print(f"proceeds: {proceeds:.2f}, cost: {cost:.2f}, wash_sales_loss: {wash_sales_loss:.2f}, gain_loss: {gain_loss:.2f}")
 
 
-# Write to CSV
-with open(args.csv, 'w') as f:
-    writer = csv.writer(f)
-    writer.writerow(Transx.columns)
-    for trnx in transx:
-        trnx.write_csv(writer)
-
-# print(args.pdf)
-# print(args.)
+# Save as csv file
+contents.to_csv(args.csv)

@@ -1,5 +1,7 @@
 from pdfreader import PDFDocument, SimplePDFViewer
 
+from .. import PDFContents
+
 
 class ParserInterface:
 
@@ -20,6 +22,6 @@ class ParserInterface:
         return False
 
 
-    def process(self):
+    def process(self, show_progress: bool) -> PDFContents:
         pass
     

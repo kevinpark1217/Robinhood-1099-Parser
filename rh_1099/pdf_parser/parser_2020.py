@@ -1,7 +1,8 @@
 from tqdm import tqdm
 
 from .parser_interface import ParserInterface
-from .transx import Transx
+from ..sales_transactions import Sales2020
+from .. import PDFContents
 
 
 class Parser2020(ParserInterface):
@@ -11,11 +12,11 @@ class Parser2020(ParserInterface):
         self.pandas_options = { "header" : None }
     
 
-    def process(self, show_progress: bool = True) -> list:
+    def process(self, show_progress: bool) -> PDFContents:
         keystr = "Proceeds from Broker and Barter Exchange Transactions"
         num_pages = len(self.pages)
 
-        transactions = []
+        pdf_contents = PDFContents()
 
         last_raw_entries = []
         
@@ -34,9 +35,9 @@ class Parser2020(ParserInterface):
                     if prev_idx >= 0:
                         raw_entries = last_raw_entries + strings[prev_idx:prev_idx+idx+1]
                         last_raw_entries = []
-                        transactions += Transx.parse(raw_entries)
+                        pdf_contents.add_sales(Sales2020.parse(raw_entries))
                     elif "(cont'd)" not in strings[prev_idx+idx+1] and last_raw_entries:
-                        transactions += Transx.parse(last_raw_entries)
+                        pdf_contents.add_sales(Sales2020.parse(last_raw_entries))
                         last_raw_entries = []
 
                     # Next Iteration
@@ -45,5 +46,5 @@ class Parser2020(ParserInterface):
                 # Last entry of the page // concatentate
                 last_raw_entries += strings[prev_idx:]
 
-        transactions += Transx.parse(last_raw_entries)
-        return transactions
+        pdf_contents.add_sales(Sales2020.parse(last_raw_entries))
+        return pdf_contents
