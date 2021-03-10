@@ -29,6 +29,30 @@ class Transx:
         assert(Transx._money_pattern.match(data[7])) # gain_loss
         self.data = data
 
+    
+    def get_proceeds(self):
+        val = self.data[3].split()[0]
+        match = self._money_pattern.match(val)
+        return float(match.group().replace(',',''))
+
+
+    def get_cost(self):
+        match = self._money_pattern.match(self.data[5])
+        return float(match.group().replace(',',''))
+
+    
+    def get_wash_sales_loss(self):
+        if not self.data[6]:
+            return 0.
+        val = self.data[6].split()[0]
+        match = self._money_pattern.match(val)
+        return float(match.group().replace(',',''))
+
+    
+    def get_gain_loss(self):
+        match = self._money_pattern.match(self.data[7])
+        return float(match.group().replace(',',''))
+
 
     @staticmethod
     def parse(raw_data: list) -> list:
