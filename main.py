@@ -39,10 +39,11 @@ if args.check:
     wash_sales_loss = contents.total("wash_sales_loss")
     gain_loss = contents.total("gain_loss")
 
-    print("Calculated Totals:")
-    print("=== Make sure the values matches with the PDF totals! ===")
-    print(f"proceeds: {proceeds:.2f}, cost: {cost:.2f}, wash_sales_loss: {wash_sales_loss:.2f}, gain_loss: {gain_loss:.2f}")
+    print(">>> Calculated Totals:")
+    print("    Make sure the values matches with the PDF totals!")
+    print(f"    proceeds: {proceeds:.2f}, cost: {cost:.2f}, wash_sales_loss: {wash_sales_loss:.2f}, gain_loss: {gain_loss:.2f}")
 
 
 # Save as csv file
 contents.to_csv(args.csv)
+print(f">>> Saved to {args.csv}")
