@@ -7,6 +7,9 @@
 
 Copyright (c) 2021 Keun Park (kevin.park1217@gmail.com)
 
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate?business=P3M77TR7L8LBA&item_name=Thanks+for+supporting+my+work%21&currency_code=USD)
+
+
 ## 🚀 Running Locally
 
 Make sure you have Python 3 on your computer. If not, download the latest version from [here](https://www.python.org/downloads/).
