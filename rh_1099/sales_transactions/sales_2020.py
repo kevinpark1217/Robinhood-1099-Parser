@@ -112,7 +112,15 @@ class Sales2020(SalesInterface):
                 if cnt > 1:
                     # Count check
                     raw_nth = raw_data[shift+shift_extra+6]
-                    assert(nth_data := re.match(f"^(?P<nth>{Sales2020._comma_number_pat}) of (?P<total>{Sales2020._comma_number_pat})$", raw_nth))
+                    nth_i = 1
+                    while not (nth_data := re.match(f"^(?P<nth>{Sales2020._comma_number_pat}) of (?P<total>{Sales2020._comma_number_pat})", raw_nth)):
+                        shift_extra += 1
+                        raw_nth += " " + raw_data[shift+shift_extra+6]
+                        if nth_i >= 3:
+                            raise Exception(f"Error while parsing...\n"
+                                            f"  {desc}\n"
+                                            f"  {sold_date} {filtered}")
+                        nth_i += 1
                     assert(locale.atoi(nth_data.group("nth")) == n + 1)
                     assert(locale.atoi(nth_data.group("total")) == cnt)
                 
