@@ -34,6 +34,7 @@ class Sales2020(SalesInterface):
     def parse(raw_data: list) -> list:
         transx = []
         assert(isinstance(raw_data, list))
+        if not raw_data: return transx  # empty list
 
         desc = raw_data[0].strip()
 

@@ -36,7 +36,7 @@ class Parser2020(ParserInterface):
                         raw_entries = last_raw_entries + strings[prev_idx:prev_idx+idx+1]
                         last_raw_entries = []
                         pdf_contents.add_sales(Sales2020.parse(raw_entries))
-                    elif "(cont'd)" not in strings[prev_idx+idx+1] and last_raw_entries:
+                    elif "(cont'd)" not in strings[prev_idx+idx+1]:
                         pdf_contents.add_sales(Sales2020.parse(last_raw_entries))
                         last_raw_entries = []
 
