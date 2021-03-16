@@ -26,7 +26,16 @@ class PDFContents():
             total += float(val)
         return total
 
+
+    def empty(self) -> bool:
+        if not self.sales: return True
+        return False
+
+
     def to_csv(self, csv_path):
+        if self.empty():
+            raise Exception("No data to write as CSV file")
+
         # Write to CSV
         with open(csv_path, 'w') as f:
             writer = csv.writer(f)
