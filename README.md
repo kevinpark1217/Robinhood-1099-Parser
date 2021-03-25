@@ -12,9 +12,19 @@ Copyright (c) 2021 Keun Park (kevin.park1217@gmail.com)
 
 ## 🚀 Running Locally
 
-Make sure you have Python 3 on your computer. If not, download the latest version from [here](https://www.python.org/downloads/).
+### Prerequisites
 
-Environment Setup  
+Make sure you have the following installed on your computer.
+- Latest [git](https://git-scm.com/downloads)
+- Latest [Python 3](https://www.python.org/downloads/)
+- [**Windows Only**] [Build Tools for Visual Studio 2019](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)  
+  In the installer, select
+  - C++ build tools
+  - the *Windows 10 SDK*
+  - the latest version of *MSVC v142 x64/x86 build tools*.
+
+
+### Tool Setup  
 ```bash
 git clone https://github.com/kevinpark1217/Robinhood-1099-Parser.git
 cd Robinhood-1099-Parser
@@ -22,7 +32,7 @@ python -m pip install wheel
 python setup.py install
 ```
 
-Start Parsing!
+### Running
 ```bash
 ➜ rh_1099
 usage: rh_1099 [-h] --pdf FILE [--csv FILE] [--silent] [--check]
