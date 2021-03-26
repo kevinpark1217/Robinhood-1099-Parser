@@ -1,4 +1,4 @@
-# Robinhood 1099 Parser
+# 🍃 Robinhood 1099 Parser
 
 > This project converts Robinhood Securities 1099 tax document from PDF to CSV file. This tool will be helpful for those who need every transaction in a spreadsheet format for tax reporting purposes.
 
