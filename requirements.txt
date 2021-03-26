@@ -1,2 +1,0 @@
-pdfreader==0.1.9
-tqdm==4.59.0
