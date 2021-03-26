@@ -12,26 +12,45 @@ Copyright (c) 2021 Keun Park (kevin.park1217@gmail.com)
 
 ## 🚀 Running Locally
 
-Make sure you have Python 3 on your computer. If not, download the latest version from [here](https://www.python.org/downloads/).
+### Prerequisites
 
-Environment Setup  
+Make sure you have the following installed on your computer.
+- Latest [git](https://git-scm.com/downloads)
+- Latest [Python 3](https://www.python.org/downloads/)  
+  Must be version 3.8 or higher
+- [**Windows Only**] [Build Tools for Visual Studio 2019](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)  
+  In the installer, select
+  - C++ build tools
+  - the *Windows 10 SDK*
+  - the latest version of *MSVC v142 x64/x86 build tools*.
+
+
+### Tool Setup  
 ```bash
 git clone https://github.com/kevinpark1217/Robinhood-1099-Parser.git
 cd Robinhood-1099-Parser
-python -m pip install -r requirements.txt
+python -m pip install wheel
+python setup.py install
 ```
 
-Start Parsing!
+### Running
 ```bash
-➜ python main.py 
-usage: main.py [-h] --pdf FILE [--csv FILE] [--silent] [--check]
+➜ rh_1099
+usage: rh_1099 [-h] --pdf FILE [--csv FILE] [--silent] [--check]
 ```
 
 ### Example and Checking
 
 Enable `--check` flag to print out total values for some columns. Make sure these values match with the PDF!
 
-![Example Screenshot](./example.png)
+```bash
+➜ rh_1099 --pdf rh_1099.pdf --check
+Pages: 100%|██████████████████████████████████████████████████████████████| 40/40 [00:03<00:00, 10.41it/s]
+>>> Calculated Totals:
+    Make sure the values matches with the PDF totals!
+    proceeds: 77521.03, cost: 80902.05, wash_sales_loss: 3733.41, gain_loss: 352.39
+>>> Saved to output.csv
+```
 
 ## 🐞 Issues and Bugs
 If you have any issues with the tool, please open a GitHub Issue with as much as detail as you can provide.
