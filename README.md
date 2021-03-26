@@ -16,7 +16,8 @@ Copyright (c) 2021 Keun Park (kevin.park1217@gmail.com)
 
 Make sure you have the following installed on your computer.
 - Latest [git](https://git-scm.com/downloads)
-- Latest [Python 3](https://www.python.org/downloads/)
+- Latest [Python 3](https://www.python.org/downloads/)  
+  Must be version 3.8 or higher
 - [**Windows Only**] [Build Tools for Visual Studio 2019](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)  
   In the installer, select
   - C++ build tools
