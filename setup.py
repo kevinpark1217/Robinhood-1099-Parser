@@ -59,6 +59,11 @@ setup(
         'Topic :: Office/Business :: Financial :: Investment',
         'Topic :: Office/Business :: Financial :: Spreadsheet',
 
+        # Supported Operating Systems
+        'Operating System :: POSIX :: Linux',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows :: Windows 10',
+
         # Pick your license as you wish
         'License :: OSI Approved :: GNU Affero General Public License v3',
 
