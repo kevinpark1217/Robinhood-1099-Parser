@@ -17,7 +17,6 @@ Copyright (c) 2021 Keun Park (kevin.park1217@gmail.com)
 ### Prerequisites
 
 Make sure you have the following installed on your computer.
-- Latest [git](https://git-scm.com/downloads)
 - Latest [Python 3](https://www.python.org/downloads/)  
   Must be version 3.8 or higher
 - [**Windows Only**] [Build Tools for Visual Studio 2019](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)  
@@ -27,13 +26,12 @@ Make sure you have the following installed on your computer.
   - the latest version of *MSVC v142 x64/x86 build tools*.
 
 
-### Tool Setup  
+### Installing
 ```bash
-git clone https://github.com/kevinpark1217/Robinhood-1099-Parser.git
-cd Robinhood-1099-Parser
 python -m pip install wheel
-python setup.py install
+python -m pip install --upgrade rh_1099
 ```
+**Note**: If commands above fail, try replacing `python` with `python3`
 
 ### Running
 ```bash
