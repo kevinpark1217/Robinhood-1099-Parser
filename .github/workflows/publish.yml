@@ -1,0 +1,49 @@
+name: Publish Package
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Fetch tag name
+      run: echo "TAG_VERSION=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+
+    - name: Check tag equals version
+      run: |
+        echo $TAG_VERSION
+        PKG_VERSION=$(python setup.py --version)
+        if [ "$TAG_VERSION" != "v${PKG_VERSION}" ]; then
+          echo "Tag and package version mismatch!"
+          exit 1
+        fi
+
+    - name: Build and publish
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_APIKEY }}
+      run: |
+        python -m build
+        twine upload dist/*
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        files: dist/*
