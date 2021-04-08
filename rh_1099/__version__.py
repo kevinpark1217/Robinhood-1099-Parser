@@ -1,7 +1,7 @@
 __title__ = 'rh_1099'
 __description__ = 'Parses Robinhood 1099 tax document from PDF into CSV format'
 __url__ = 'https://github.com/kevinpark1217/Robinhood-1099-Parser'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __author__ = 'Keun Tae (Kevin) Park'
 __author_email__ = 'kevin.park1217@gmail.com'
 __keywords__ = 'pdf, csv, parsing, excel, spreadsheet, tax, robinhood, 1099'
