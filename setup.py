@@ -36,7 +36,7 @@ setup(
     author=about['__author__'],
     author_email=about['__author_email__'],
     url=about['__url__'],
-    python_requires='>=3.6, <4',
+    python_requires='>=3.8, <4',
     packages=find_packages(where='.'),
     keywords=about['__keywords__'],
     install_requires=requires,
