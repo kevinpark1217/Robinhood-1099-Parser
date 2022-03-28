@@ -21,7 +21,7 @@ class PDFContents():
         # Assumes that data is number
         total = 0.
         for sale in self.sales:
-            if not (val := sale.get(key)): continue
+            if not (val == sale.get(key)): continue
             val = val.replace(',','').split()[0] # remove commas and trailing characters
             total += float(val)
         return total
