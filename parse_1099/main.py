@@ -1,11 +1,12 @@
 import argparse
 import os
 import os.path
+import locale
 
 from .pdf_contents import PDFContents
-from .pdf_parser import Parser2020
-# from rh_1099.sales_transactions import Sales2020
+from .parser import Parser
 
+locale.setlocale(locale.LC_ALL, '')
 
 def is_valid_file(parser, arg):
     if not os.path.exists(arg):
@@ -16,34 +17,34 @@ def is_valid_file(parser, arg):
 
 def main():
     parser = argparse.ArgumentParser(
-        prog='rh_1099',
-        description='Robinhood Securities 1099 Tax Document Parser')
+        prog='parse_1099',
+        description='1099 Tax Document Parser')
     parser.add_argument('--pdf', required=True, dest='pdf_path',
                         help='Input path to the 1099 PDF document', metavar="FILE",
                         type=lambda x: is_valid_file(parser, x))
     parser.add_argument('--csv', metavar="FILE", help='Output path of the parsed CSV')
     parser.add_argument('--silent', action='store_true', help='Hide progress bar')
-    parser.add_argument('--check', action='store_true', help='Print total values to check')
+    parser.add_argument('--validate', action='store_true', help='Print total values for validation')
 
     args = parser.parse_args()
     if not args.csv:
         args.csv = 'output.csv'
 
 
-    parser = Parser2020(args.pdf_path)
-    contents = parser.process(not args.silent)
+    parser = Parser(args.pdf_path)
+    contents = parser.parse(not args.silent)
 
 
     # Print values to crosscheck with PDF
-    if args.check:
+    if args.validate:
         proceeds = contents.total("proceeds")
         cost = contents.total("cost")
         wash_sales_loss = contents.total("wash_sales_loss")
         gain_loss = contents.total("gain_loss")
 
         print(">>> Calculated Totals:")
-        print("    Make sure the values matches with the PDF totals!")
-        print(f"    proceeds: {proceeds:.2f}, cost: {cost:.2f}, wash_sales_loss: {wash_sales_loss:.2f}, gain_loss: {gain_loss:.2f}")
+        print("    Make sure the values match with the PDF totals!")
+        print(f"    proceeds: ${proceeds:,.2f}, cost: ${cost:,.2f}, wash_sales_loss: ${wash_sales_loss:,.2f}, gain_loss: ${gain_loss:,.2f}")
 
 
     # Save as csv file

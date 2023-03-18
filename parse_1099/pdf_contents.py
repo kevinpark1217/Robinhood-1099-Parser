@@ -1,9 +1,8 @@
 import io, csv
 
-from .sales_transactions import SalesInterface
+from .sales.sales_interface import SalesInterface
 
 class PDFContents():
-
 
     def __init__(self):
         self.sales = []
@@ -21,7 +20,8 @@ class PDFContents():
         # Assumes that data is number
         total = 0.
         for sale in self.sales:
-            if not (val := sale.get(key)): continue
+            val = sale.get(key)
+            if not val: continue
             val = val.replace(',','').split()[0] # remove commas and trailing characters
             total += float(val)
         return total

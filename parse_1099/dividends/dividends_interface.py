@@ -1,6 +1,5 @@
 
-class SalesInterface:
-
+class DividendsInterface:
 
     def __init__(self, data: list, columns: list):
         assert(len(data) == len(self.columns))
@@ -11,7 +10,6 @@ class SalesInterface:
     def get(self, key):
         col = self.columns.index(key)
         return self.data[col]
-
 
     @staticmethod
     def parse(raw_data: list) -> list:

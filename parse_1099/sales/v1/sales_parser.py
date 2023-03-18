@@ -1,22 +1,18 @@
 from tqdm import tqdm
 
-from .parser_interface import ParserInterface
-from ..sales_transactions import Sales2020
-from .. import PDFContents
+from ...subparser_interface import SubparserInterface
+from ...pdf_contents import PDFContents
+from .sales import Sales
 
 
-class Parser2020(ParserInterface):
+class SalesParser(SubparserInterface):
     
-    def __init__(self, pdf_path):
-        super().__init__(pdf_path)
-        self.pandas_options = { "header" : None }
-    
+    def __init__(self, pdf_file):
+        super().__init__(pdf_file)
 
-    def process(self, show_progress: bool) -> PDFContents:
-        keystr = "Proceeds from Broker and Barter Exchange Transactions"
+    def process(self, show_progress: bool, pdf_contents: PDFContents) -> PDFContents:
+        indicator_str = "Proceeds from Broker and Barter Exchange Transactions"
         num_pages = len(self.pages)
-
-        pdf_contents = PDFContents()
 
         last_raw_entries = []
         
@@ -24,27 +20,30 @@ class Parser2020(ParserInterface):
         if show_progress:
             page_iter = tqdm(page_iter, desc='Pages')
         for p in page_iter:
-            if self.contains(keystr, p):
+            if self.contains(indicator_str, p):
 
                 strings = self.viewer.canvas.strings
                 # print(self.viewer.canvas.text_content) # contains format information
                 
                 prev_idx = -1
-                while idx := next((i for i, val in enumerate(strings[prev_idx+1:]) if "Symbol:" in val and "CUSIP:" in val), None):
-                    
+                def getNextIndex():
+                    return next((i for i, val in enumerate(strings[prev_idx+1:]) if "Symbol:" in val and "CUSIP:" in val), None)
+                idx = getNextIndex()
+                while idx:
                     if prev_idx >= 0:
                         raw_entries = last_raw_entries + strings[prev_idx:prev_idx+idx+1]
                         last_raw_entries = []
-                        pdf_contents.add_sales(Sales2020.parse(raw_entries))
+                        pdf_contents.add_sales(Sales.parse(raw_entries))
                     elif "(cont'd)" not in strings[prev_idx+idx+1]:
-                        pdf_contents.add_sales(Sales2020.parse(last_raw_entries))
+                        pdf_contents.add_sales(Sales.parse(last_raw_entries))
                         last_raw_entries = []
 
                     # Next Iteration
                     prev_idx += idx + 1
+                    idx = getNextIndex()
                     
                 # Last entry of the page // concatentate
                 last_raw_entries += strings[prev_idx:]
 
-        pdf_contents.add_sales(Sales2020.parse(last_raw_entries))
+        pdf_contents.add_sales(Sales.parse(last_raw_entries))
         return pdf_contents
