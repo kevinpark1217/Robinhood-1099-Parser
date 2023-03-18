@@ -15,7 +15,8 @@ import os
 
 requires = [
     'pdfreader>=0.1.9',
-    'tqdm>=4.59.0'
+    'tqdm>=4.59.0',
+    'yahooquery>=2.3.0'
 ]
 
 here = pathlib.Path(__file__).parent.resolve()

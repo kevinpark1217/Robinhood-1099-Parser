@@ -52,4 +52,4 @@ def main():
         contents.to_csv(args.csv)
         print(f">>> Saved to {args.csv}")
     else:
-        print(f">>> No data to save to a file")
+        print(f">>> No data to save to file")

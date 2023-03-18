@@ -1,4 +1,7 @@
 # v2.0.0
+## Added
+- Added search functionality for ex dividend dates.
+
 ## Changed
 - Downgraded python version requirement to `>= 3.6`
 - Renamed tool to `parse_1099` to reflect that it's not specific to Robinhood.
