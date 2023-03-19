@@ -5,7 +5,7 @@ from .sales.sales_interface import SalesInterface
 class PDFContents():
 
     def __init__(self):
-        self.sales = []
+        self.sales: list[SalesInterface] = []
 
 
     def add_sales(self, sales):

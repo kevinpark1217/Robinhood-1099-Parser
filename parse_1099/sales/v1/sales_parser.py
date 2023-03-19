@@ -1,4 +1,5 @@
 from tqdm import tqdm
+from pdfreader.viewer.canvas import SimpleCanvas
 
 from ...subparser_interface import SubparserInterface
 from ...pdf_contents import PDFContents
@@ -14,36 +15,42 @@ class SalesParser(SubparserInterface):
         indicator_str = "Proceeds from Broker and Barter Exchange Transactions"
         num_pages = len(self.pages)
 
-        last_raw_entries = []
+        dangling_lines = []
         
         page_iter = range(1, num_pages+1)
         if show_progress:
             page_iter = tqdm(page_iter, desc='Pages')
         for p in page_iter:
             if self.contains(indicator_str, p):
-
-                strings = self.viewer.canvas.strings
-                # print(self.viewer.canvas.text_content) # contains format information
+                canvas: SimpleCanvas = self.viewer.canvas #type: ignore
+                strings = canvas.strings
                 
-                prev_idx = -1
-                def getNextIndex():
-                    return next((i for i, val in enumerate(strings[prev_idx+1:]) if "Symbol:" in val and "CUSIP:" in val), None)
-                idx = getNextIndex()
-                while idx:
-                    if prev_idx >= 0:
-                        raw_entries = last_raw_entries + strings[prev_idx:prev_idx+idx+1]
-                        last_raw_entries = []
-                        pdf_contents.add_sales(Sales.parse(raw_entries))
-                    elif "(cont'd)" not in strings[prev_idx+idx+1]:
-                        pdf_contents.add_sales(Sales.parse(last_raw_entries))
-                        last_raw_entries = []
+                if strings is None:
+                    # no need to error log, this just appeases the linter. `contains` relies on strings being not-None
+                    continue
 
-                    # Next Iteration
-                    prev_idx += idx + 1
-                    idx = getNextIndex()
+                prev_header_idx: int = -1
+                security_header_line_indices = [i for i, val in enumerate(strings) if "Symbol:" in val and "CUSIP:" in val]
+                for header_idx in security_header_line_indices:
+                    # case: this isn't the first header on the page
+                    if prev_header_idx >= 0:
+                        # action: previous security is finished, parse its range of lines into a Sales
+                        security_transaction_lines = dangling_lines + strings[prev_header_idx:header_idx]
+                        dangling_lines = []
+                        pdf_contents.add_sales(Sales.parse(security_transaction_lines))
+
+                    # case: this is the first header on the page and it isn't a 'continued'
+                    elif "(cont'd)" not in strings[header_idx]:
+                        # action: previous security (if it exists) is finished. Try to parse it as a Sales just in case
+                        pdf_contents.add_sales(Sales.parse(dangling_lines))
+                        dangling_lines = []
                     
-                # Last entry of the page // concatentate
-                last_raw_entries += strings[prev_idx:]
+                    # todo: suppose there are two cont'd. consider
+                    prev_header_idx = header_idx
 
-        pdf_contents.add_sales(Sales.parse(last_raw_entries))
+                # case: no security headers remain but lines do. Capture them for future handling
+                dangling_lines += strings[prev_header_idx:]
+
+        # case: no pages nor security headers remain but the last security needs to be parsed out. Do it
+        pdf_contents.add_sales(Sales.parse(dangling_lines))
         return pdf_contents

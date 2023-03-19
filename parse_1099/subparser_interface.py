@@ -1,4 +1,5 @@
 from pdfreader import PDFDocument, SimplePDFViewer
+from pdfreader.viewer.canvas import SimpleCanvas
 from io import BufferedReader
 
 from .pdf_contents import PDFContents
@@ -13,10 +14,11 @@ class SubparserInterface:
     def contains(self, msg: str, page: int) -> bool:
         self.viewer.navigate(page)
         self.viewer.render()
-        if msg in self.viewer.canvas.strings:
+        canvas: SimpleCanvas = self.viewer.canvas # type: ignore
+        if canvas.strings is not None and msg in canvas.strings:
             return True
         return False
 
 
-    def process(self, show_progress: bool, contents: PDFContents = PDFContents()) -> PDFContents:
+    def process(self, show_progress: bool, contents: PDFContents = PDFContents()) -> PDFContents: # type: ignore
         pass

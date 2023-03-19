@@ -9,7 +9,8 @@ class Parser:
         fd = open(pdf_path, "rb")
 
         self.subparsers = [ \
-            SalesParser(fd)]
+            SalesParser(fd), \
+            DividendsParser(fd)]
 
     def parse(self, show_progress: bool) -> PDFContents:
         contents = PDFContents()

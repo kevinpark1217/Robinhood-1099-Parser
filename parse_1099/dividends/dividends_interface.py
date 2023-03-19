@@ -12,5 +12,5 @@ class DividendsInterface:
         return self.data[col]
 
     @staticmethod
-    def parse(raw_data: list) -> list:
+    def parse(raw_data: list) -> list: #type: ignore
         pass

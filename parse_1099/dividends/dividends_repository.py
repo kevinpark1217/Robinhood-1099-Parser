@@ -1,4 +1,5 @@
-from yahooquery import Ticker, search
+from typing import Union
+from yahooquery import Ticker, search #type: ignore
 from pandas.core.series import Series
 
 class By():
@@ -10,7 +11,7 @@ class DividendsRepository():
     def __init__(self):
         self.cusip_cache = {}
 
-    def get_dividend_exdates(self, by: By, lookup, tax_year: int) -> Series:
+    def get_dividend_exdates(self, by: By, lookup: Union[str, "list[str]"], tax_year: int) -> Union[Series, None]:
         """ Gets the dividend history using the specified lookup string for the specified tax year
 
         Keyword Arguments:
@@ -61,7 +62,7 @@ class DividendsRepository():
 
         return dividend_history
 
-    def _get_ticker_from_cusip(self, cusip: str) -> str:
+    def _get_ticker_from_cusip(self, cusip: str) -> Union[str, None]:
         ticker = None
         search_results = search(cusip, quotes_count=1)
         quotes = search_results['quotes']
