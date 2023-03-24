@@ -22,13 +22,13 @@ def main():
     parser.add_argument('--pdf', required=True, dest='pdf_path',
                         help='Input path to the 1099 PDF document', metavar="FILE",
                         type=lambda x: is_valid_file(parser, x))
-    parser.add_argument('--csv', metavar="FILE", help='Output path of the parsed CSV')
+    parser.add_argument('--csv', metavar="PREFIX", help='Output path (and prefix) of the parsed CSVs. For example, ./directory/output will produce ./directory/output_sales.csv and ./directory/output_dividends.csv')
     parser.add_argument('--silent', action='store_true', help='Hide progress bar')
     parser.add_argument('--validate', action='store_true', help='Print total values for validation')
 
     args = parser.parse_args()
     if not args.csv:
-        args.csv = 'output.csv'
+        args.csv = 'output'
 
 
     parser = Parser(args.pdf_path)

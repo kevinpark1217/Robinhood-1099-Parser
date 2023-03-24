@@ -11,6 +11,9 @@ __pycache__/
 # C extensions
 *.so
 
+# Test Data
+data/
+
 # Distribution / packaging
 .Python
 build/

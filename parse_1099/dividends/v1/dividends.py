@@ -1,33 +1,33 @@
-import re
-import locale
+from re import compile, match
 
 from ..dividends_interface import DividendsInterface
 
 class Dividends(DividendsInterface):
 
-    columns = ["description", "sold_date", "quantity", "proceeds", "acquired_date", "cost", "wash_dividends_loss", "gain_loss"]
+    columns = ["security", "cusip", "transaction_date", "amount", "transaction_type", "notes"]
 
-    _comma_number_pat = "\d?\d?\d(,\d\d\d)*"
-    _date_pat = "\d\d\/\d\d\/\d\d"
+    _date_pattern = compile(f"^\d\d\/\d\d\/\d\d$")
+    _quantity_pattern = compile(f"^-?\d?\d?\d(,\d\d\d)*\.\d+$")
 
-    _date_pattern = re.compile(f"^{_date_pat}$")
-    _quantity_pattern = re.compile(f"^{_comma_number_pat}\.\d+$")
-    _money_pattern = re.compile(f"^\-?{_comma_number_pat}\.\d\d$")
+    _security_pattern = compile("[0-9A-Z ]+") # purposefully ignores securities that are named with (cont'd)
+    _cusip_pattern = compile("[0-9A-Z]{9}")
+    _subtotal_pattern = compile("Total.*")
+
+    # these are random strings I've noticed that get parsed strangely -- should be part of the transaction type
+    _notes_exclusions = ["-Various"]
 
 
     def __init__(self, data: list):
         super().__init__(data, self.columns)
         assert(isinstance(data, list))
         # == Columns ==
-        assert(isinstance(data[0], str)) # descripion
-        assert(Dividends._date_pattern.match(data[1])) # sold_date
-        assert(Dividends._quantity_pattern.match(data[2])) # quantity
-        assert(re.match(f"^\-?{self._comma_number_pat}\.\d\d( [NG])?$", data[3])) # proceeds
-        assert(Dividends._date_pattern.match(data[4])) # acquired_date
-        assert(Dividends._money_pattern.match(data[5])) # cost
-        assert(re.match(f"^(\-?{self._comma_number_pat}\.\d\d [W])?$", data[6])) # wash_dividends_loss
-        assert(Dividends._money_pattern.match(data[7])) # gain_loss
-    
+        assert(isinstance(data[0], str)) # security
+        assert(isinstance(data[1], str)) # cusip
+        assert(Dividends._date_pattern.match(data[2])) # transaction_date
+        assert(Dividends._quantity_pattern.match(data[3])) # amount
+        assert(isinstance(data[4], str)) # transaction_type
+        assert(isinstance(data[5], str)) # notes
+
 
     @staticmethod
     def parse(raw_data: list) -> list:
@@ -35,111 +35,49 @@ class Dividends(DividendsInterface):
         assert(isinstance(raw_data, list))
         if not raw_data: return transx  # empty list
 
-        desc = raw_data[0].strip()
+        def error(parsed, parsing, value):
+            raise Exception(f"Error while parsing {parsing} ({value}) for (partial) dividend transaction {parsed}")
 
-        shift = 1
-        while shift < len(raw_data) - 7:
-            multi = re.match(f"^(?P<cnt>{Dividends._comma_number_pat}) transactions for (?P<sold_date>{Dividends._date_pat}).", raw_data[shift])
-            if multi:
-                # Multiple entries
-                cnt = locale.atoi(multi.group("cnt"))
-                sold_date = multi.group("sold_date")
+        security = raw_data[0].strip()
+        cusip = raw_data[1].strip()
 
-                # print(f"{cnt} transactions sold on {sold_date}")
-            elif Dividends._date_pattern.match(raw_data[shift]):
-                cnt = 1
-                sold_date = raw_data[shift]
+        cursor = 2
+        while cursor < len(raw_data) - len(Dividends.columns) + 1: # +1 because notes is optional
+            # dividends transactions begin with a date
+            if Dividends._date_pattern.match(raw_data[cursor]):
+                date = raw_data[cursor]
+                cursor += 1
             else:
-                shift += 1
+                cursor += 1
                 continue
 
+            dividend_raw = [security, cusip, date]
+            # amount
+            if Dividends._quantity_pattern.match(raw_data[cursor]):
+                dividend_raw.append(raw_data[cursor])
+                cursor += 1
+            else:
+                error(dividend_raw, "amount", raw_data[cursor])
 
-            n = 0
-            while n < cnt:
-                shift += 1
-                filtered = []
-                shift_extra = 0
+            # type
+            dividend_raw.append(raw_data[cursor])
+            cursor += 1
 
-                # quantity
-                if not Dividends._quantity_pattern.match(raw_data[shift+shift_extra]):
-                    if cnt > 1: continue
-                    else: break
-                filtered.append(raw_data[shift+shift_extra])
+            # if no notes, add an empty string. because there may not be notes, also verify we're not out of bounds
+            # also add empty string if the value at the cursor is in the exclusions list,
+            # or if the next value indicates a subtotal section (in which case the value is an amount)
+            if cursor < len(raw_data) and Dividends._date_pattern.match(raw_data[cursor]) or \
+                raw_data[cursor] in Dividends._notes_exclusions or \
+                cursor + 1 < len(raw_data) and Dividends._subtotal_pattern.match(raw_data[cursor+1]):
+                dividend_raw.append("")
+            else:
+                dividend_raw.append(raw_data[cursor])
+                cursor += 1 # only increment the cursor if there were notes, otherwise we want to pick up with the discovered date
 
-                # proceeds
-                if not Dividends._money_pattern.match(raw_data[shift+shift_extra+1]):
-                    if cnt > 1: continue
-                    else: break
-                filtered.append(raw_data[shift+shift_extra+1])
-                # Gross Net - Potential Extra character
-                gross_net = raw_data[shift+shift_extra+2]
-                if gross_net == 'N' or gross_net == 'G':
-                    filtered[1] += " " + gross_net
-                    shift_extra += 1
+            transx.append(Dividends(dividend_raw))
 
-                # date_acquired
-                if not Dividends._date_pattern.match(raw_data[shift+shift_extra+2]):
-                    if cnt > 1: continue
-                    else: break
-                filtered.append(raw_data[shift+shift_extra+2])
+            del dividend_raw
 
-                # cost
-                if not Dividends._money_pattern.match(raw_data[shift+shift_extra+3]): 
-                    if cnt > 1: continue
-                    else: break
-                filtered.append(raw_data[shift+shift_extra+3])
-
-                # wash_dividends_loss
-                if raw_data[shift+shift_extra+4] == "...":
-                    filtered.append("")
-
-                elif Dividends._money_pattern.match(raw_data[shift+shift_extra+4]):
-                    filtered.append(raw_data[shift+shift_extra+4])
-                    # disallowed - Potential Extra character
-                    if raw_data[shift+shift_extra+5] == "W":
-                        filtered[4] += " " + raw_data[shift+shift_extra+5]
-                        shift_extra += 1
-
-                else:
-                    if cnt > 1: continue
-                    else: break
-                
-                # gain_loss
-                if not Dividends._money_pattern.match(raw_data[shift+shift_extra+5]):
-                    if cnt > 1: continue
-                    else: break
-                filtered.append(raw_data[shift+shift_extra+5])
-                
-                if cnt > 1:
-                    # Count check
-                    raw_nth = raw_data[shift+shift_extra+6]
-                    nth_i = 1
-                    def getNthData():
-                        return re.match(f"^(?P<nth>{Dividends._comma_number_pat}) of (?P<total>{Dividends._comma_number_pat})", raw_nth)
-                    nth_data = getNthData()
-                    while not nth_data:
-                        shift_extra += 1
-                        raw_nth += " " + raw_data[shift+shift_extra+6]
-                        if nth_i >= 3:
-                            raise Exception(f"Error while parsing...\n"
-                                            f"  {desc}\n"
-                                            f"  {sold_date} {filtered}")
-                        nth_i += 1
-                        nth_data = getNthData()
-
-                    assert(locale.atoi(nth_data.group("nth")) == n + 1)
-                    assert(locale.atoi(nth_data.group("total")) == cnt)
-                
-                # Add sold_date to the front
-                filtered.insert(0, sold_date)
-                filtered.insert(0, desc)
-                transx.append(Dividends(filtered))
-                # print(filtered)
-
-                shift += shift_extra + 6
-                n += 1
-                # Clean
-                del filtered
+        # todo: validate using subtotal section
 
         return transx
-
