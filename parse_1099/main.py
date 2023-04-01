@@ -5,6 +5,9 @@ import locale
 
 from .pdf_contents import PDFContents
 from .parser import Parser
+from .dividends.dividend_analyzer import DividendAnalyzer
+from .utilities.csv_writer import CSVWriter
+from .dividends.v1.dividends_total import DividendsTotal
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -16,40 +19,50 @@ def is_valid_file(parser, arg):
 
 
 def main():
-    parser = argparse.ArgumentParser(
+    arg_parser = argparse.ArgumentParser(
         prog='parse_1099',
         description='1099 Tax Document Parser')
-    parser.add_argument('--pdf', required=True, dest='pdf_path',
+    arg_parser.add_argument('--pdf', required=True, dest='pdf_path',
                         help='Input path to the 1099 PDF document', metavar="FILE",
-                        type=lambda x: is_valid_file(parser, x))
-    parser.add_argument('--csv', metavar="PREFIX", help='Output path (and prefix) of the parsed CSVs. For example, ./directory/output will produce ./directory/output_sales.csv and ./directory/output_dividends.csv')
-    parser.add_argument('--silent', action='store_true', help='Hide progress bar')
-    parser.add_argument('--validate', action='store_true', help='Print total values for validation')
+                        type=lambda x: is_valid_file(arg_parser, x))
+    arg_parser.add_argument('--csv', metavar="PREFIX", help='Output path (and prefix) of the parsed CSVs. For example, ./directory/output will produce ./directory/output_sales.csv and ./directory/output_dividends.csv')
+    arg_parser.add_argument('--silent', action='store_true', help='Hide progress bar')
+    arg_parser.add_argument('--validate', action='store_true', help='Print total values for validation')
+    arg_parser.add_argument("--include-dividend-notes", action='store_true', help="Include the 'notes' column in the dividend output csv")
+    arg_parser.add_argument("--disable-qualified-dividend-analysis", action='store_true', help="Disable analysis of qualified dividend holding periods")
 
-    args = parser.parse_args()
+    args = arg_parser.parse_args()
     if not args.csv:
         args.csv = 'output'
 
 
-    parser = Parser(args.pdf_path)
-    contents = parser.parse(not args.silent)
-
+    parser = Parser(args.pdf_path, args.include_dividend_notes)
+    contents: PDFContents = parser.parse(not args.silent)
 
     # Print values to crosscheck with PDF
     if args.validate:
-        proceeds = contents.total("proceeds")
-        cost = contents.total("cost")
-        wash_sales_loss = contents.total("wash_sales_loss")
-        gain_loss = contents.total("gain_loss")
-
-        print(">>> Calculated Totals:")
-        print("    Make sure the values match with the PDF totals!")
-        print(f"    proceeds: ${proceeds:,.2f}, cost: ${cost:,.2f}, wash_sales_loss: ${wash_sales_loss:,.2f}, gain_loss: ${gain_loss:,.2f}")
-
+        contents.display_validation()
 
     # Save as csv file
     if not contents.empty():
-        contents.to_csv(args.csv)
-        print(f">>> Saved to {args.csv}")
+        sales_csv = f"{args.csv}_sales.csv"
+        dividends_csv = f"{args.csv}_dividends.csv"
+
+        csv_writer = CSVWriter()
+
+        if (contents.sales is not None):
+            csv_writer.write_to_csv(sales_csv, contents.sales)
+        if (contents.dividends is not None):
+            csv_writer.write_to_csv(dividends_csv, contents.dividends)
+
+            dividend_analyzer = DividendAnalyzer()
+            adjusted_dividends, adjusted_total = dividend_analyzer.get_disqualified_dividends(contents)
+            if adjusted_dividends is not None:
+                assert(adjusted_total is not None) # this should never be none if there are dividends
+                print(f"Analyzed dividends and determinded that ${adjusted_total.disqualified} of qualified dividends should be considered nonqualified due to short holding periods around the ex-dividend date")
+                adjusted_dividends_csv = f"{args.csv}_adjusted_dividends.csv"
+                csv_writer.write_to_csv(adjusted_dividends_csv, adjusted_dividends)
+
+                print(adjusted_total)
     else:
         print(f">>> No data to save to file")

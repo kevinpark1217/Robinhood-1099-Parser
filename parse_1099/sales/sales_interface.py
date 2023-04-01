@@ -1,3 +1,5 @@
+from datetime import datetime
+from typing import Union
 
 class SalesInterface:
 
@@ -6,10 +8,14 @@ class SalesInterface:
         self.data = data
         self.columns = columns
 
-    
+        self.cusip: "Union[str, None]" = None
+        self.symbol: "Union[str, None]" = None
+        self.acquired_date: "Union[datetime, None]" = None
+        self.disposal_date: "Union[datetime, None]" = None
+
     def get(self, key):
-        col = self.columns.index(key)
-        return self.data[col]
+        col_idx = self.columns.index(key)
+        return self.data[col_idx]
 
     @staticmethod
     def parse(raw_data: list) -> list: # type: ignore

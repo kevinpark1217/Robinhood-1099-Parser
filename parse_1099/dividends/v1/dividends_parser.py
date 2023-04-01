@@ -10,8 +10,9 @@ from .dividends import Dividends
 
 class DividendsParser(SubparserInterface):
 
-    def __init__(self, pdf_file):
+    def __init__(self, pdf_file, include_dividend_notes: bool = False):
         super().__init__(pdf_file)
+        self.include_notes = include_dividend_notes
 
     def process(self, show_progress: bool, pdf_contents: PDFContents) -> PDFContents:
         indicator_str = "Detail for Dividends and Distributions"
@@ -49,12 +50,18 @@ class DividendsParser(SubparserInterface):
                         # action: previous security is finished, parse its range of lines into a Sales
                         security_dividends_lines = dangling_lines + strings[prev_header_idx:security_header_idx]
                         dangling_lines = []
-                        pdf_contents.add_dividends(Dividends.parse(security_dividends_lines))
+                        pdf_contents.add_dividends(Dividends.parse(security_dividends_lines, self.include_notes))
 
                     # case: this is the first header on the page
                     else:
                         # action: previous security (if it exists) is finished. Try to parse it as a Dividends just in case
-                        pdf_contents.add_dividends(Dividends.parse(dangling_lines))
+                        contd_idx = 0
+                        try:
+                            contd_idx = strings.index("(cont'd)")
+                        except ValueError:
+                            contd_idx = 0
+
+                        pdf_contents.add_dividends(Dividends.parse(dangling_lines + strings[contd_idx:security_header_idx], self.include_notes))
                         dangling_lines = []
                     
                     prev_header_idx = security_header_idx
@@ -64,7 +71,5 @@ class DividendsParser(SubparserInterface):
                 dangling_lines += strings[prev_header_idx:]
 
         # case: no pages nor security headers remain but the last security needs to be parsed out. Do it
-        pdf_contents.add_dividends(Dividends.parse(dangling_lines))
-        return pdf_contents
-
+        pdf_contents.add_dividends(Dividends.parse(dangling_lines, self.include_notes))
         return pdf_contents

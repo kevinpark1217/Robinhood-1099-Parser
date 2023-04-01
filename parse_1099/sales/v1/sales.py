@@ -27,7 +27,6 @@ class Sales(SalesInterface):
         assert(Sales._money_pattern.match(data[5])) # cost
         assert(re.match(f"^(\-?{self._comma_number_pat}\.\d\d [W])?$", data[6])) # wash_sales_loss
         assert(Sales._money_pattern.match(data[7])) # gain_loss
-    
 
     @staticmethod
     def parse(raw_data: list) -> list:
