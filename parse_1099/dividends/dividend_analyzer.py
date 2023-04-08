@@ -113,7 +113,7 @@ class DividendAnalyzer():
 
                         if self.report_prefix is not None:
                             for sale in disqualified_sales:
-                                sale.add_note(f"Disqualifies dividend {working_dividend} with exdate {exdate} and payout ${amount_per_share}")
+                                sale.add_note(f"Disqualifies dividend {dividend} with exdate {exdate} and payout ${amount_per_share}")
                             detailed_report.extend(disqualified_sales)
 
                 if self.report_prefix is not None:
