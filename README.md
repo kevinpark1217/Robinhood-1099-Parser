@@ -1,6 +1,8 @@
 # 🍃 1099 Parser
 
-[![Build](https://github.com/kevinpark1217/Robinhood-1099-Parser/actions/workflows/build.yaml/badge.svg)](https://github.com/kevinpark1217/Robinhood-1099-Parser/actions/workflows/build.yaml)
+> Note: Dividend features are in beta. I haven't written tests yet. Use the `--analysis-report` flag to get more details about how decisions are made and double check my work.
+
+[![Build](https://github.com/ajwells256/1099-Parser/actions/workflows/build.yaml/badge.svg)](https://github.com/ajwells256/1099-Parser/actions/workflows/build.yaml)
 
 > This project converts standard 1099 tax documents (validated on Robinhood and Wealthfront documents so far) from PDF to CSV file. This tool will be helpful for those who need every transaction in a spreadsheet format for tax reporting purposes. After parsing the tax documents, it will perform some simple analysis on the holding period of securities which reported qualifying dividends.
 
@@ -40,7 +42,7 @@ $ python -m pip install --upgrade parse_1099
 ### Running
 ```bash
 $ parse_1099
-usage: parse_1099 [-h] --pdf FILE [--csv FILE] [--silent] [--validate]
+usage: parse_1099 [-h] --pdf FILE [--csv FILE] [--silent] [--validate] [--disable-dividend-analysis] [--analysis-report]
 ```
 
 ### Example and Validation

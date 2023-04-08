@@ -1,6 +1,8 @@
 # v2.0.0
 ## Added
 - Added search functionality for ex dividend dates.
+- Added parsing of dividends.
+- Added analysis of dividends and sales to determine whether qualified dividends need to be considered nonqualified.
 
 ## Changed
 - Downgraded python version requirement to `>= 3.6` for ease of use on ubuntu.
