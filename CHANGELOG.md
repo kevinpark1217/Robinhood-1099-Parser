@@ -1,4 +1,8 @@
 
+## [2.1.1] 2023-04-08
+### Fixed
+- Defect where a lack of any Qualified Dividends would raise an exception during Dividend Analysis.
+
 ## [2.1.0] 2023-04-08
 ### Changed
 - Added short-hand flags for the existing command line parameters.

@@ -30,35 +30,38 @@ class DividendAnalyzer():
         '''Gets an adjusted list of dividends, or None if there were no disqualifications'''
         # get securities that had qualified dividends
         cusips = DividendAnalyzer.get_securities_with_qualified_dividends(contents.dividends)
-
-        # get sales for those securities and calculate holding period
-        transactions_with_short_holding_periods = DividendAnalyzer.get_securities_with_short_holding_periods(contents.sales, cusips)
-        symbols_with_short_holding_periods = [s.symbol for s in transactions_with_short_holding_periods if s.symbol is not None]
-        cusips_with_short_holding_periods = [s.cusip for s in transactions_with_short_holding_periods if s.symbol is None and s.cusip is not None]
-
-        # fetch dividend information for all securities with holding periods less than 60 days
-        prev_year = datetime.now().year - 1
-        cusip_exdates, cusip_to_symbol_map = self.repository.get_dividend_exdates(By.CUSIP, cusips_with_short_holding_periods, prev_year)
-        symbol_exdates, _ = self.repository.get_dividend_exdates(By.SYMBOL, symbols_with_short_holding_periods, prev_year)
-
-        dividend_exdates = None
-        if (cusip_exdates is not None and symbol_exdates is not None):
-            dividend_exdates = cusip_exdates.append(symbol_exdates)
-        elif (cusip_exdates is not None):
-            dividend_exdates = cusip_exdates
-        elif (symbol_exdates is not None):
-            dividend_exdates = symbol_exdates
-
-        if dividend_exdates is None:
-            raise Exception("Encountered an error while retreiving ex-dividend dates")
-
-        # produce an updated list of dividends
-        cusip_to_symbol_map.update([(s.cusip, s.symbol) for s in transactions_with_short_holding_periods if s.symbol is not None and s.cusip is not None])
-
-        adjusted_dividends = self.get_adjusted_dividends(contents.dividends, transactions_with_short_holding_periods, dividend_exdates, cusip_to_symbol_map)
         adjusted_total = None
-        if adjusted_dividends is not None:
-            adjusted_total = DividendsTotal.FromDividends(adjusted_dividends)
+        adjusted_dividends = None
+
+        if len(cusips) > 0:
+            # get sales for those securities and calculate holding period
+            transactions_with_short_holding_periods = DividendAnalyzer.get_securities_with_short_holding_periods(contents.sales, cusips)
+            symbols_with_short_holding_periods = [s.symbol for s in transactions_with_short_holding_periods if s.symbol is not None]
+            cusips_with_short_holding_periods = [s.cusip for s in transactions_with_short_holding_periods if s.symbol is None and s.cusip is not None]
+
+            # fetch dividend information for all securities with holding periods less than 60 days
+            prev_year = datetime.now().year - 1
+            cusip_exdates, cusip_to_symbol_map = self.repository.get_dividend_exdates(By.CUSIP, cusips_with_short_holding_periods, prev_year)
+            symbol_exdates, _ = self.repository.get_dividend_exdates(By.SYMBOL, symbols_with_short_holding_periods, prev_year)
+
+            dividend_exdates = None
+            if (cusip_exdates is not None and symbol_exdates is not None):
+                dividend_exdates = cusip_exdates.append(symbol_exdates)
+            elif (cusip_exdates is not None):
+                dividend_exdates = cusip_exdates
+            elif (symbol_exdates is not None):
+                dividend_exdates = symbol_exdates
+
+            if dividend_exdates is None:
+                raise Exception("Encountered an error while retreiving ex-dividend dates")
+
+            # produce an updated list of dividends
+            cusip_to_symbol_map.update([(s.cusip, s.symbol) for s in transactions_with_short_holding_periods if s.symbol is not None and s.cusip is not None])
+
+            adjusted_dividends = self.get_adjusted_dividends(contents.dividends, transactions_with_short_holding_periods, dividend_exdates, cusip_to_symbol_map)
+            if adjusted_dividends is not None:
+                adjusted_total = DividendsTotal.FromDividends(adjusted_dividends)
+
         return adjusted_dividends, adjusted_total
 
     def get_adjusted_dividends(self, dividends: "list[DividendsInterface]",
