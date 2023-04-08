@@ -22,15 +22,15 @@ def main():
     arg_parser = argparse.ArgumentParser(
         prog='parse_1099',
         description='1099 Tax Document Parser')
-    arg_parser.add_argument('--pdf', required=True, dest='pdf_path',
+    arg_parser.add_argument('-i', '--pdf', required=True, dest='pdf_path',
                         help='Input path to the 1099 PDF document', metavar="FILE",
                         type=lambda x: is_valid_file(arg_parser, x))
-    arg_parser.add_argument('--csv', metavar="PREFIX", help='Output path (and prefix) of the parsed CSVs. For example, ./directory/output will produce ./directory/output_sales.csv and ./directory/output_dividends.csv')
-    arg_parser.add_argument('--silent', action='store_true', help='Hide progress bar')
-    arg_parser.add_argument('--validate', action='store_true', help='Print total values for validation')
-    arg_parser.add_argument("--include-dividend-notes", action='store_true', help="Include the 'notes' column in the dividend output csv")
-    arg_parser.add_argument("--disable-dividend-analysis", action='store_true', help="Disable analysis of qualified dividend holding periods")
-    arg_parser.add_argument("--analysis-report", action='store_true', help="Produce a detailed report from the qualified dividends analysis.")
+    arg_parser.add_argument('-o', '--csv', metavar="PREFIX", help='Output path (and prefix) of the parsed CSVs. For example, ./directory/output will produce ./directory/output_sales.csv and ./directory/output_dividends.csv')
+    arg_parser.add_argument('-s', '--silent', action='store_true', help='Hide progress bar')
+    arg_parser.add_argument('-v', '--validate', action='store_true', help='Print total values for validation')
+    arg_parser.add_argument('-n', "--include-dividend-notes", action='store_true', help="Include the 'notes' column in the dividend output csv")
+    arg_parser.add_argument('-d', "--disable-dividend-analysis", action='store_true', help="Disable analysis of qualified dividend holding periods")
+    arg_parser.add_argument('-r', "--analysis-report", action='store_true', help="Produce a detailed report from the qualified dividends analysis.")
 
     args = arg_parser.parse_args()
     if not args.csv:

@@ -1,7 +1,7 @@
 __title__ = 'parse_1099'
 __description__ = 'Parses 1099 tax document (1099-B, 1099-INT, 1099-DIV) from PDF into CSV format and performs simple analysis'
 __url__ = ''
-__version__ = '2.0.0'
+__version__ = '2.1.0'
 __author__ = 'Andrew Wells, Keun Tae (Kevin) Park'
 __author_email__ = 'ajwells@uchicago.com, kevin.park1217@gmail.com'
 __keywords__ = 'pdf, csv, parsing, excel, spreadsheet, tax, 1099'

@@ -103,7 +103,6 @@ class DividendAnalyzer():
                     if disqualified_sale_count != 0:
                         adjustment_occurred = True
 
-                        # todo - lookup dividend per share
                         amount_per_share = cusip_exdates[exdate.date()]
                         disqualified_dividend = working_dividend.disqualify(
                             disqualified_sale_count, amount_per_share)
