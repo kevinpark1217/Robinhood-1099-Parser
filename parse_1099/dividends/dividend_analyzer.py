@@ -2,6 +2,7 @@ from datetime import datetime
 from pandas.core.series import Series
 from re import search, compile
 from typing import Union, Tuple
+from locale import atof
 
 from .dividends_interface import DividendsInterface
 from .dividends_repository_interface import DividendsRepositoryInterface
@@ -96,6 +97,13 @@ class DividendAnalyzer():
                         # skip all except the qualified dividends when analyzing for disqualified dividends
                         continue
 
+                    related_dividends = [cusip_div for cusip_div in cusip_dividends
+                                            if dividend.date == cusip_div.date]
+                    
+                    parsed_related_dividend_amounts = [atof(div.get("amount")) for div in related_dividends]
+                    total_dividend_amount = sum([amount for amount in parsed_related_dividend_amounts if amount > 0]) # excludes taxes withheld
+                    qualified_percent = atof(working_dividend.get("amount")) / total_dividend_amount
+
                     exdate = DividendAnalyzer.get_dividend_exdate(
                         working_dividend, cusip_exdates)
                     disqualified_sales = [sale for sale in sales_with_short_holding_periods
@@ -105,15 +113,16 @@ class DividendAnalyzer():
                     disqualified_sale_count = len(disqualified_sales)
                     if disqualified_sale_count != 0:
                         adjustment_occurred = True
+                        disqualified_shares_count = sum(atof(sale.get("quantity")) for sale in disqualified_sales)
 
                         amount_per_share = cusip_exdates[exdate.date()]
                         disqualified_dividend = working_dividend.disqualify(
-                            disqualified_sale_count, amount_per_share)
+                            disqualified_shares_count, amount_per_share * qualified_percent)
                         adjusted_dividends.append(disqualified_dividend)
 
                         if self.report_prefix is not None:
                             for sale in disqualified_sales:
-                                sale.add_note(f"Disqualifies dividend {dividend} with exdate {exdate} and payout ${amount_per_share}")
+                                sale.add_note(f"Disqualifies dividend {dividend} with exdate {exdate}, payout ${amount_per_share} and qualified percentage {round(qualified_percent*100, 1)}%")
                             detailed_report.extend(disqualified_sales)
 
                 if self.report_prefix is not None:

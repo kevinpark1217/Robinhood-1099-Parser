@@ -64,7 +64,8 @@ def main():
                 if adjusted_dividends is not None:
                     assert(adjusted_total is not None) # this should never be none if there are dividends
                     report = "For more details, see the sales_with_short_holding_periods report." if args.analysis_report else "For more details, use the --analysis-report flag."
-                    print(f">>> Analyzed dividends and determinded that ${adjusted_total.disqualified} of qualified dividends should be considered nonqualified due to short holding periods around the ex-dividend date. The disqualification is reflected in the adjusted_dividends csv. {report}")
+                    print(f">>> Analyzed dividends and determinded that ${adjusted_total.disqualified:.2f} of qualified dividends should be considered nonqualified due to \
+                          short holding periods around the ex-dividend date. The disqualification is reflected in the adjusted_dividends csv. {report}")
                     adjusted_dividends_csv = f"{args.csv}_adjusted_dividends.csv"
                     csv_writer.write_to_csv(adjusted_dividends_csv, adjusted_dividends)
 

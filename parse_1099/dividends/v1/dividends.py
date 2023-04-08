@@ -46,7 +46,7 @@ class Dividends(DividendsInterface):
 
     def disqualify(self, shares_disqualified, share_dividend_amount) -> "DividendsInterface":
         '''Produces a new Dividend of type 'nonqualified dividend' and adjusts this dividend accordingly'''
-        disqualification_amount = shares_disqualified * share_dividend_amount
+        disqualification_amount = round(shares_disqualified * share_dividend_amount, 2)
         dividend_data = [self.get("security"), self.get("cusip"), \
                 self.get("transaction_date"), str(disqualification_amount), "Nonqualified dividend"]
         if self.include_notes:
