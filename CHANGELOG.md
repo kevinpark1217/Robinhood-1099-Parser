@@ -4,6 +4,7 @@
 - Defect where a lack of any Qualified Dividends would raise an exception during Dividend Analysis.
 - Defect where a sparely populated dividends section would raise an exception when parsing the grand total section.
 - Major defect surrounding dividends that are split between qualified and nonqualified. The shares count was totally wrong, and the amount to disqualify could be too high.
+- Improve multi-line dividend name parsing (for cases when there is just one dividend for the security).
 
 ## [2.1.0] 2023-04-08
 ### Changed

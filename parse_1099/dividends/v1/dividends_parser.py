@@ -10,6 +10,8 @@ from .dividends import Dividends
 
 class DividendsParser(SubparserInterface):
 
+    _transaction_type_pattern = compile(".*(dividend|withheld).*")
+
     def __init__(self, pdf_file, include_dividend_notes: bool = False):
         super().__init__(pdf_file)
         self.include_notes = include_dividend_notes
@@ -45,7 +47,8 @@ class DividendsParser(SubparserInterface):
                     # fix multi-line securities names. Not ideal, could improve
                     if (security_header_idx > 0 and \
                         Dividends._security_pattern.match(strings[security_header_idx-1]) and \
-                        not Dividends._subtotal_pattern.match(strings[security_header_idx-1])):
+                        not Dividends._subtotal_pattern.match(strings[security_header_idx-1]) and \
+                        not DividendsParser._transaction_type_pattern.match(strings[security_header_idx-1])): # in the case where there's just one dividend for a security, there isn't a subtotal
                         strings[security_header_idx] = f"{strings[security_header_idx-1]} {strings[security_header_idx]}"
 
                     # case: this isn't the first header on the page
