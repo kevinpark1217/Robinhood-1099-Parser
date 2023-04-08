@@ -64,7 +64,7 @@ class Dividends(DividendsInterface):
         return disqualified_dividend
 
     def copy(self) -> "DividendsInterface":
-        return Dividends(self.data, self.include_notes)
+        return Dividends(self.data.copy(), self.include_notes)
 
     @staticmethod
     def parse(raw_data: "list[str]", include_notes: bool) -> "list[Dividends]":
