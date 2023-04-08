@@ -184,6 +184,16 @@ class Dividends(DividendsInterface):
                 subtotal_amount = atof(raw_data[cursor-1])
                 subtotals[raw_data[cursor]] = subtotal_amount
             cursor += 1
+
+        total_title = "Total Dividends & distributions"
+        tax_exempt_title = "Total Tax-exempt dividends"
+        foreign_tax_withheld_title = "Total Foreign tax withheld"
+        if total_title not in subtotals:
+            subtotals[total_title] = 0
+        if tax_exempt_title not in subtotals:
+            subtotals[tax_exempt_title] = 0
+        if foreign_tax_withheld_title not in subtotals:
+            subtotals[foreign_tax_withheld_title] = 0
         
         return DividendsTotal(subtotals["Total Dividends & distributions"], \
             tax_exempt=subtotals["Total Tax-exempt dividends"], \

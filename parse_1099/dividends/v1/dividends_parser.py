@@ -36,8 +36,11 @@ class DividendsParser(SubparserInterface):
                         if Dividends._security_pattern.match(strings[i]) and Dividends._cusip_pattern.match(strings[i+1]):
                             return i
 
+                # robinhood header can look like a security header since their account ids are the same form as CUSIPs
+                # endeavor to pass over these false matches by advancing at least as far as the title, which in the current version gets beyond the robinhood account string
+                header_title_idx = strings.index(indicator_str)
                 prev_header_idx: int = -1
-                security_header_idx = get_next_security_index(strings)
+                security_header_idx = get_next_security_index(strings, header_title_idx+1)
                 while security_header_idx:
                     # fix multi-line securities names. Not ideal, could improve
                     if (security_header_idx > 0 and \

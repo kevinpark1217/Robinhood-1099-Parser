@@ -2,6 +2,7 @@
 ## [2.1.1] 2023-04-08
 ### Fixed
 - Defect where a lack of any Qualified Dividends would raise an exception during Dividend Analysis.
+- Defect where a sparely populated dividends section would raise an exception when parsing the grand total section.
 
 ## [2.1.0] 2023-04-08
 ### Changed
