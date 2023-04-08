@@ -15,7 +15,8 @@ import os
 
 requires = [
     'pdfreader>=0.1.9',
-    'tqdm>=4.59.0'
+    'tqdm>=4.59.0',
+    'yahooquery>=2.3.0'
 ]
 
 here = pathlib.Path(__file__).parent.resolve()
@@ -23,7 +24,7 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / 'README.md').read_text(encoding='utf-8')
 
 about = {}
-with open(os.path.join(here, 'rh_1099', '__version__.py'), 'r') as f:
+with open(os.path.join(here, 'parse_1099', '__version__.py'), 'r') as f:
     exec(f.read(), about)
 
 
@@ -36,7 +37,7 @@ setup(
     author=about['__author__'],
     author_email=about['__author_email__'],
     url=about['__url__'],
-    python_requires='>=3.8, <4',
+    python_requires='>=3.6, <4',
     packages=find_packages(where='.'),
     keywords=about['__keywords__'],
     install_requires=requires,
@@ -71,6 +72,8 @@ setup(
         # that you indicate you support Python 3. These classifiers are *not*
         # checked by 'pip install'. See instead 'python_requires' below.
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3 :: Only',
@@ -111,7 +114,7 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         'console_scripts': [
-            'rh_1099=rh_1099.main:main',
+            'parse_1099=parse_1099.main:main',
         ],
     },
 
@@ -125,9 +128,8 @@ setup(
     # maintainers, and where to support the project financially. The key is
     # what's used to render the link text on PyPI.
     project_urls={  # Optional
-        'Bug Reports': 'https://github.com/kevinpark1217/Robinhood-1099-Parser/issues',
-        'Funding': 'https://www.paypal.com/donate?business=P3M77TR7L8LBA&item_name=Thanks+for+supporting+my+work%21&currency_code=USD',
+        'Bug Reports': 'https://github.com/ajwells256/1099-Parser/issues',
         # 'Say Thanks!': 'http://saythanks.io/to/example',
-        'Source': 'https://github.com/kevinpark1217/Robinhood-1099-Parser',
+        'Source': 'https://github.com/ajwells256/1099-Parser',
     },
 )
