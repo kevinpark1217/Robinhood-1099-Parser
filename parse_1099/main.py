@@ -29,7 +29,8 @@ def main():
     arg_parser.add_argument('--silent', action='store_true', help='Hide progress bar')
     arg_parser.add_argument('--validate', action='store_true', help='Print total values for validation')
     arg_parser.add_argument("--include-dividend-notes", action='store_true', help="Include the 'notes' column in the dividend output csv")
-    arg_parser.add_argument("--disable-qualified-dividend-analysis", action='store_true', help="Disable analysis of qualified dividend holding periods")
+    arg_parser.add_argument("--disable-dividend-analysis", action='store_true', help="Disable analysis of qualified dividend holding periods")
+    arg_parser.add_argument("--analysis-report", action='store_true', help="Produce a detailed report from the qualified dividends analysis.")
 
     args = arg_parser.parse_args()
     if not args.csv:
@@ -55,14 +56,17 @@ def main():
         if (contents.dividends is not None):
             csv_writer.write_to_csv(dividends_csv, contents.dividends)
 
-            dividend_analyzer = DividendAnalyzer()
-            adjusted_dividends, adjusted_total = dividend_analyzer.get_disqualified_dividends(contents)
-            if adjusted_dividends is not None:
-                assert(adjusted_total is not None) # this should never be none if there are dividends
-                print(f"Analyzed dividends and determinded that ${adjusted_total.disqualified} of qualified dividends should be considered nonqualified due to short holding periods around the ex-dividend date")
-                adjusted_dividends_csv = f"{args.csv}_adjusted_dividends.csv"
-                csv_writer.write_to_csv(adjusted_dividends_csv, adjusted_dividends)
+            if not args.disable_dividend_analysis:
+                dividend_analyzer = DividendAnalyzer()
+                if args.analysis_report:
+                    dividend_analyzer.enable_reporting(args.csv)
+                adjusted_dividends, adjusted_total = dividend_analyzer.get_disqualified_dividends(contents)
+                if adjusted_dividends is not None:
+                    assert(adjusted_total is not None) # this should never be none if there are dividends
+                    print(f"Analyzed dividends and determinded that ${adjusted_total.disqualified} of qualified dividends should be considered nonqualified due to short holding periods around the ex-dividend date")
+                    adjusted_dividends_csv = f"{args.csv}_adjusted_dividends.csv"
+                    csv_writer.write_to_csv(adjusted_dividends_csv, adjusted_dividends)
 
-                print(adjusted_total)
+                    print(adjusted_total)
     else:
         print(f">>> No data to save to file")

@@ -128,9 +128,8 @@ setup(
     # maintainers, and where to support the project financially. The key is
     # what's used to render the link text on PyPI.
     project_urls={  # Optional
-        'Bug Reports': 'https://github.com/kevinpark1217/Robinhood-1099-Parser/issues',
-        'Funding': 'https://www.paypal.com/donate?business=P3M77TR7L8LBA&item_name=Thanks+for+supporting+my+work%21&currency_code=USD',
+        'Bug Reports': 'https://github.com/ajwells256/1099-Parser/issues',
         # 'Say Thanks!': 'http://saythanks.io/to/example',
-        'Source': 'https://github.com/kevinpark1217/Robinhood-1099-Parser',
+        'Source': 'https://github.com/ajwells256/1099-Parser',
     },
 )

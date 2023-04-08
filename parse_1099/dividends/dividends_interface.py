@@ -22,3 +22,6 @@ class DividendsInterface:
     @staticmethod
     def parse(raw_data: list) -> list: #type: ignore
         pass
+
+    def __str__(self) -> str:
+        return f"{self.get('security')}: {self.get('cusip')} | {self.get('transaction_type')} | {self.get('amount')} | {self.get('transaction_date')}"

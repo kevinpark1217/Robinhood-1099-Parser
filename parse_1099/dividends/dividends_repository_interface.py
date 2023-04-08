@@ -1,4 +1,8 @@
-from typing import Union, Literal
+from typing import Union
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 from pandas.core.series import Series
 
 class By():

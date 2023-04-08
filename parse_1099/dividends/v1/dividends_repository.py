@@ -1,6 +1,7 @@
 from typing import Union
 from yahooquery import Ticker, search #type: ignore
 from pandas.core.series import Series
+from datetime import datetime
 
 from ..dividends_repository_interface import DividendsRepositoryInterface
 
@@ -57,7 +58,7 @@ class DividendsRepository(DividendsRepositoryInterface):
         if (len(tickers) > 0):
             yahoo_tickers = Ticker(tickers)
             dividend_history_frame = yahoo_tickers.dividend_history(
-                f"{tax_year}-01-01", f"{tax_year+1}-01-01")
+                datetime(tax_year, 1, 1), datetime(tax_year+1, 1, 1))
             dividend_history = dividend_history_frame['dividends']
 
         return dividend_history, self.cusip_cache

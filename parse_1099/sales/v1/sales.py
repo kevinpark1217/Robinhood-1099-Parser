@@ -5,8 +5,6 @@ from ..sales_interface import SalesInterface
 
 class Sales(SalesInterface):
 
-    columns = ["description", "sold_date", "quantity", "proceeds", "acquired_date", "cost", "wash_sales_loss", "gain_loss"]
-
     _comma_number_pat = "\d?\d?\d(,\d\d\d)*"
     _date_pat = "\d\d\/\d\d\/\d\d"
 
@@ -16,7 +14,9 @@ class Sales(SalesInterface):
 
 
     def __init__(self, data: list):
-        super().__init__(data, self.columns)
+        columns = ["description", "sold_date", "quantity", "proceeds", "acquired_date", "cost", "wash_sales_loss", "gain_loss"]
+
+        super().__init__(data, columns)
         assert(isinstance(data, list))
         # == Columns ==
         assert(isinstance(data[0], str)) # descripion
