@@ -2,6 +2,9 @@
 
 > Note: Dividend features are in beta. I haven't written tests yet. Use the `--analysis-report` flag to get more details about how decisions are made and double check my work.
 
+## Massive caveat: The parser is no longer compatible with Robinhood or Wealthfront for the 2023 tax year.
+Both institutions have simplified their sales reports so that securities sold on a particular day but acquired on different days no have a separate line item for each of the dates acquired (and, in lieu of reporting any acquisition dates at all, the acquired date is simply 'Various'). This breaks the parser (which can be fixed) but more importantly removes a piece of information. Without date acquired, it's no longer possible to analyze (based purely on the consolidated 1099) whether dividends become unqualified.
+
 [![Build](https://github.com/ajwells256/1099-Parser/actions/workflows/build.yaml/badge.svg)](https://github.com/ajwells256/1099-Parser/actions/workflows/build.yaml)
 
 > This project converts standard 1099 tax documents (validated on Robinhood and Wealthfront documents so far) from PDF to CSV file. This tool will be helpful for those who need every transaction in a spreadsheet format for tax reporting purposes. After parsing the tax documents, it will perform some simple analysis on the holding period of securities which reported qualifying dividends.

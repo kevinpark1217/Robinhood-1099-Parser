@@ -58,7 +58,7 @@ class Dividends(DividendsInterface):
         amount_idx = self.columns.index("amount")
         parsed_amount = atof(self.data[amount_idx])
         new_qualified_amount = parsed_amount - disqualification_amount
-        assert(new_qualified_amount > 0)
+        assert(new_qualified_amount >= 0)
         self.data[amount_idx] = str(new_qualified_amount)
 
         return disqualified_dividend

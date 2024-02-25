@@ -1,3 +1,6 @@
+## [2.1.2] 2024-02-24
+### Fixed
+- Defect where an assertion error would falsely throw during divident analysis if there were no dividends at all.
 
 ## [2.1.1] 2023-04-08
 ### Fixed

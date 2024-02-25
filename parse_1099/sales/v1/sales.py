@@ -77,6 +77,10 @@ class Sales(SalesInterface):
                     shift_extra += 1
 
                 # date_acquired
+                #
+                # TODO: Robinhood and Wealthfront no longer have a line item for each date acquired, which breaks this parse
+                # 'Various' comes through in raw data (to make life more miserable, broken out by letters at least in Robinhood)
+                # and causes the parse to stop here
                 if not Sales._date_pattern.match(raw_data[shift+shift_extra+2]):
                     if cnt > 1: continue
                     else: break
