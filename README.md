@@ -1,5 +1,14 @@
 # 🍃 Robinhood 1099 Parser
 
+> [!WARNING]
+> **This project is archived and no longer maintained.**
+>
+> It was written for the Robinhood Securities 1099 layout of the 2020–2022 tax years. Starting with the 2023 tax year, Robinhood aggregates sales of the same security and reports "Various" as the acquired date, which this parser does not handle.
+>
+> Robinhood now provides CSV transaction files alongside the Consolidated 1099, and the 1099 can be imported directly into tax software such as TurboTax and H&R Block. See Robinhood's [Taxes and forms](https://robinhood.com/us/en/support/articles/taxes-and-forms) page.
+>
+> Thank you to everyone who used this tool, reported issues, and contributed!
+
 [![Build](https://github.com/kevinpark1217/Robinhood-1099-Parser/actions/workflows/build.yaml/badge.svg)](https://github.com/kevinpark1217/Robinhood-1099-Parser/actions/workflows/build.yaml)
 
 > This project converts Robinhood Securities 1099 tax document from PDF to CSV file. This tool will be helpful for those who need every transaction in a spreadsheet format for tax reporting purposes.
